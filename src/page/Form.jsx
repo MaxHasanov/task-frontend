@@ -1,68 +1,71 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
 import './Form.scss'
+import { useForm } from "react-hook-form";
+
+const styles = {
+    input: {
+        width: "25%",
+    },
+    container: {
+        width: "80%",
+        margin: "0 auto",
+    }
+}
 
 function Form() {
-    const [name, setName] = useState('')
-    const [lastName, setLastName] = useState('')
-    const [email, setEmail] = useState('')
-    const [options, setOptions] = useState('');
-    const [err, setErr] = useState(true);
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        mode: "onBlur"
+    });
 
     // Этот объект мы будем передавать в API с помощью Json
-    const data = {
-        name,
-        lastName,
-        email,
-        options,
-    }
-
-    // const changeRequired = () => {
-    //     if (name || lastName.length > 2) {
-    //         setErr(!err)
-    //     }
+    // const data = {
+    //     name,
+    //     lastName,
+    //     email,
+    //     options,
     // }
 
-    const handleSubmit = (event) => {
-        event.preventDefault()
-    }
+
+    const onSubmit = (data) => console.log(data);
 
     return (
         <>
-            <main>
+            <main style={styles.container}>
                 <h1 className="info-header">Form feedback!</h1>
-                <form onSubmit={handleSubmit} action="#">
+                <form onSubmit={handleSubmit(onSubmit)} action="#">
                     <div className="info-client">
-                        <Input
-                            key="name"
-                            value={name}
-                            name="Name"
-                            onChange={(e) => setName(e.target.value)}
+                        <span>Введите имя: </span>
+                        {errors?.name && errors.name.message}
+                        <input
                             placeholder="Имя"
-                            required={err}>
-                        </Input>
+                            style={{ ...styles.input, borderColor: errors.name && "red" }}
+                            {...register("name", {
+                                required: "Поле обязательно к заполнению",
+                                pattern: {
+                                    value: /^[A-Za-z]+$/i,
+                                    message: 'Имя должно содержать только буквы',
+                                },
+                                minLength: {
+                                    value: 2,
+                                    message: 'Короткое имя'
+                                }
+                            })}
+                        />
                         <Input
-                            key="lastName"
-                            value={lastName}
-                            name="LastName"
-                            onChange={(e) => setLastName(e.target.value)}
+                            name="lastName"
                             placeholder="Фамилия"
-                            required={err}>
+                        >
                         </Input>
                         <Input
-                            key="email"
-                            value={email}
-                            name="Email"
-                            onChange={(e) => setEmail(e.target.value)}
+                            name="email"
                             placeholder="Email">
                         </Input>
                     </div>
                     <div className="info-client">
                         <select
                             name="categories"
-                            id="categories"
-                            value={options}
-                            onChange={(e) => setOptions(e.target.value)}>
+                            id="categories">
                             <option disabled={true} hidden value="">Выберите категорию</option>
                             <option value="Показания">Показания</option>
                             <option value="Платежи">Платежи</option>
